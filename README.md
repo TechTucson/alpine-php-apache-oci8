@@ -1,4 +1,4 @@
-# techtucson/apache-php8-oci8
+# techtucson/alpine-apache-php8-oci8
 Docker image with apache, PHP 8 and OCI8
 
 
