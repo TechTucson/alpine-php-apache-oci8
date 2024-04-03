@@ -1,4 +1,4 @@
-FROM techtucson/apache_php8.3_oci8_v21.13
+FROM techtucson/alpine-php-apache-oci8
 
 RUN mv /var/www/html/public/index.php /var/www/html/public/info.php
 
