@@ -3,9 +3,9 @@ Docker image with apache, PHP 8 and OCI8
 
 
 ### Versioning
-| Docker Tag        | Apache Version | PHP Version | Debian Version |Debian Version |
-|-------------------|----------------|-------------|----------------|---------------|
-|       NONE        | 2.4.57         | 8.3.4       | GNU/Linux 10   | 21.13         |
+| Docker Tag        | Apache Version | PHP Version |Apline Version |
+|-------------------|----------------|-------------|---------------|
+|       NONE        | 2.4.58         | 8.3.4       | 21.13         |
 
 ### Enabled PHP Modules
 '''
@@ -21,7 +21,6 @@ filter
 hash
 iconv
 json
-ldap
 libxml
 mbstring
 mysqlnd
@@ -29,7 +28,6 @@ oci8
 openssl
 pcre
 PDO
-PDO_OCI
 pdo_sqlite
 Phar
 posix
@@ -38,7 +36,6 @@ readline
 Reflection
 session
 SimpleXML
-soap
 sodium
 SPL
 sqlite3
@@ -50,8 +47,8 @@ xmlwriter
 zlib
 '''
 ### Links
-- [https://github.com/TechTucson/docker-apache-php8-oci8](https://github.com/TechTucson/docker-apache-php8-oci8)
-- [https://hub.docker.com/repository/docker/techtucson/apache_php8.3_oci8_v21.13](https://hub.docker.com/repository/docker/techtucson/apache_php8.3_oci8_v21.13)
+- [https://github.com/TechTucson/alpine-php-apache-oci8](https://github.com/TechTucson/alpine-php-apache-oci8)
+- [https://hub.docker.com/repository/docker/techtucson/alpine-php-apache-oci8](https://hub.docker.com/repository/docker/techtucson/alpine-php-apache-oci8)
 
 
 ## Build
@@ -61,12 +58,12 @@ zlib
 To pull from docker hub:
 
 ```
-docker pull techtucson/apache_php8.3_oci8_v21.13:latest
+docker pull techtucson/alpine-php-apache-oci8:latest
 ```
 
 ### Sample Usage
 
-[https://github.com/TechTucson/docker-apache-php8-oci8/tree/main/sample](https://github.com/TechTucson/docker-apache-php8-oci8/tree/main/sample)
+[https://github.com/TechTucson/alpine-php-apache-oci8/tree/main/sample](https://github.com/TechTucson/alpine-php-apache-oci8/tree/main/sample)
 
 Author
 -------
