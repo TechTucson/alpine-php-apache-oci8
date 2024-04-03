@@ -1,65 +1,74 @@
-FROM php:8.3.4-apache
+FROM php:8.3.4-alpine3.19
+LABEL maintainer="mario.uribe@gmail.com"
+LABEL description="Alpine based image with apache2 and php8.3"
 
-RUN apt-get update && apt-get install -qqy git unzip libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-        libaio1 wget && apt-get clean autoclean && apt-get autoremove --yes &&  rm -rf /var/lib/{apt,dpkg,cache,log}/ 
-#composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Setup apache and php
+RUN apk --no-cache --update \
+    add apache2 \
+    apache2-ssl \
+    curl \
+    php83-apache2 \
+    php83-bcmath \
+    php83-bz2 \
+    php83-calendar \
+    php83-common \
+    php83-ctype \
+    php83-curl \
+    php83-dom \
+    php83-gd \
+    php83-iconv \
+    php83-mbstring \
+    php83-mysqli \
+    php83-mysqlnd \
+    php83-openssl \
+    php83-pdo_mysql \
+    php83-pdo_pgsql \
+    php83-pdo_sqlite \
+    php83-phar \
+    php83-pear \
+    php83-dev \
+    php83-session \
+    php83-xml \
+    php83-soap \
+    php83-pecl-xdebug \
+    && mkdir /htdocs
+RUN apk add gcompat
+#Add OCI Instant Client
+ENV LD_LIBRARY_PATH /usr/local/instantclient_21_13${LD_LIBRARY_PATH}
+# Install Oracle Client and build OCI8 (Oracle Command Interface 8 - PHP extension)
+RUN apk add g++ libnsl libaio make
+# RUN apk add musl-dev
+## Download and unarchive Instant Client v21.13
 
-# ORACLE oci 
-RUN mkdir /opt/oracle \
-    && cd /opt/oracle     
-    
-ADD oracle/21/instantclient-basic-linux.x64-21.13.0.0.0dbru.zip /opt/oracle
-ADD oracle/21/instantclient-sdk-linux.x64-21.13.0.0.0dbru.zip /opt/oracle
-ADD oracle/21/instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip /opt/oracle
+ADD oracle/21/basic.zip /tmp
+ADD oracle/21/sdk.zip /tmp
+ADD oracle/21/sqlplus.zip /tmp
+RUN unzip -d /usr/local/ /tmp/basic.zip
+RUN unzip -d /usr/local/ /tmp/sdk.zip
+RUN unzip -d /usr/local/ /tmp/sqlplus.zip
 
-# Install Oracle Instantclient
-RUN unzip /opt/oracle/instantclient-basic-linux.x64-21.13.0.0.0dbru.zip -d /opt/oracle
-RUN unzip /opt/oracle/instantclient-sdk-linux.x64-21.13.0.0.0dbru.zip -d /opt/oracle
-RUN unzip /opt/oracle/instantclient-sqlplus-linux.x64-21.13.0.0.0dbru.zip -d /opt/oracle
-#RUN ln -s /opt/oracle/instantclient_21_13/libclntsh.so.21.1 /opt/oracle/instantclient_21_13/libclntsh.so
-#RUN ln -s /opt/oracle/instantclient_21_13/libclntshcore.so.21.1 /opt/oracle/instantclient_21_13/libclntshcore.so
-#RUN ln -s /opt/oracle/instantclient_21_13/libocci.so.21.1 /opt/oracle/instantclient_21_13/libocci.so
-RUN rm -rf /opt/oracle/*.zip
-RUN apt-get remove wget -y
-RUN apt remove unzip -y
-    
-ENV LD_LIBRARY_PATH  /opt/oracle/instantclient_21_13:${LD_LIBRARY_PATH}
-    
-# Install Oracle extensions
-RUN echo 'instantclient,/opt/oracle/instantclient_21_13/' | pecl install oci8 \ 
-      && docker-php-ext-enable \
-               oci8 \ 
-       && docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/opt/oracle/instantclient_21_13,21.1 \
-       && docker-php-ext-install \
-               pdo_oci 
-			  
-# Install LDAP
-
-RUN apt-get update \
-    && apt-get install libldap2-dev -y \
-    && docker-php-ext-install ldap \
-    && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-    && docker-php-ext-install ldap
-
-#Install SOAP
-RUN apt-get update && \
-    apt-get install -y libxml2-dev
-
-RUN docker-php-ext-install soap
+## Links are required for older SDKs
 
 
-WORKDIR /var/www/html
+RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/usr/local/instantclient_21_13
+RUN docker-php-ext-install oci8
+RUN docker-php-ext-enable oci8
+RUN echo 'extension=oci8.so' > /etc/php83/conf.d/03-oci8.ini
+RUN docker-php-ext-install pdo
+RUN docker-php-ext-enable pdo
 
-COPY apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY apache/charset.conf /etc/apache2/conf-available/charset.conf
-COPY php/timezone.ini /usr/local/etc/php/conf.d/timezone.ini
-COPY src/index.php /var/www/html/public/index.php
-COPY php/vars-pro.ini /usr/local/etc/php/conf.d/vars.ini
 
-RUN cp -f "/usr/local/etc/php/php.ini-production" /usr/local/etc/php/php.ini
-RUN apt-get clean autoclean && apt-get autoremove --yes
+#  Clean up
+COPY src/index.php /var/www/localhost/htdocs/index.php
+RUN cp /usr/local/lib/php/extensions/no-debug-non-zts-20230831/* /usr/lib/php83/modules/.
 
 EXPOSE 80
+
+ADD docker-entrypoint.sh /
+
+#RUN apk del php83-pear php83-dev gcc musl-dev make g++ libnsl libaio 
+#RUN rm -rf /tmp/*.zip /var/cache/apk/* /tmp/pear/
+
+HEALTHCHECK CMD wget -q --no-cache --spider localhost
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
