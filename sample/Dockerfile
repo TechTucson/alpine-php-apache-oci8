@@ -1,6 +1,6 @@
 FROM techtucson/alpine-php-apache-oci8
 
-RUN mv /var/www/html/public/index.php /var/www/html/public/info.php
+RUN mv /var/www/localhost/htdocs/index.php /var/www/localhost/htdocs/info.php
 
-ADD apache/index.html /var/www/html/public/index.html
-ADD apache/clouds.jpg /var/www/html/public/clouds.jpg
+ADD apache/index.html /var/www/localhost/htdocs/index.html
+ADD apache/clouds.jpg /var/www/localhost/htdocs/clouds.jpg
