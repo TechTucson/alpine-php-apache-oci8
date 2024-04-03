@@ -3,9 +3,9 @@ Docker image with apache, PHP 8 and OCI8
 
 
 ### Versioning
-| Docker Tag        | Apache Version | PHP Version |Apline Version |
-|-------------------|----------------|-------------|---------------|
-|       NONE        | 2.4.58         | 8.3.4       | 21.13         |
+| Docker Tag        | Apache Version | PHP Version |OCI8 Version   |Apline Version |
+|-------------------|----------------|-------------|---------------|---------------|
+|       NONE        | 2.4.58         | 8.3.4       | 21.13         |3.19           |
 
 ### Enabled PHP Modules
 '''
